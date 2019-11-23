@@ -1,11 +1,17 @@
 import express from "express";
+import dotenv from "dotenv";
+import { registerRoutes } from "./routes";
+
+// initialize configuration
+dotenv.config();
+
+// dotenv creates environment variables from a .env file
+const port = process.env.SERVER_PORT;
+
 const app = express();
-const port = 3000;
 
 // define route handlers
-app.get("/", (req, res, next) => {
-  res.send("Hello world!");
-});
+registerRoutes(app);
 
 // start the server
 app.listen(port, () => {
