@@ -10,6 +10,9 @@ const port = process.env.SERVER_PORT;
 
 const app = express();
 
+// Configure Express to parse incoming JSON data
+app.use(express.json());
+
 // define route handlers
 registerRoutes(app);
 

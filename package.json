@@ -4,6 +4,7 @@
   "description": "The backend service for the dollar-plan app.",
   "main": "dist/index.js",
   "scripts": {
+    "initdb": "ts-node tools/initdb",
     "build": "tsc",
     "prestart": "npm run build",
     "start": "node .",
@@ -13,11 +14,17 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^8.2.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "fs-extra": "^8.1.0",
+    "pg": "^7.14.0",
+    "pg-promise": "^10.2.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.2",
+    "@types/fs-extra": "^8.0.1",
     "@types/node": "^12.12.11",
+    "@types/pg": "^7.11.2",
+    "ts-node": "^8.5.2",
     "typescript": "^3.7.2"
   }
 }
