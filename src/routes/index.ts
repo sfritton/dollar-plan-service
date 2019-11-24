@@ -1,20 +1,20 @@
 import * as Express from "express";
+import pgPromise from "pg-promise";
+import { registerRoutes as registerBudgetRoutes } from "./budgets";
+import { registerRoutes as registerGroupRoutes } from "./groups";
 
 export const registerRoutes = (app: Express.Application) => {
-  app.get("/budgets/:budgetId", (req, res) => {
-    const budgetId = req.params.budgetId;
-    res.send(`returns a budget with id ${budgetId}`);
-  });
+  const port = parseInt(process.env.PGPORT || "5432", 10);
+  const config = {
+    database: process.env.PGDATABASE || "postgres",
+    host: process.env.PGHOST || "localhost",
+    port,
+    user: process.env.PGUSER || "postgres"
+  };
 
-  app.get("/budgets", (req, res) => {
-    res.send("returns all budgets");
-  });
+  const pgp = pgPromise();
+  const db = pgp(config);
 
-  app.post("/budgets/:budgetId", (req, res) => {
-    res.send("creates a budget if none exists, otherwise returns an error");
-  });
-
-  app.put("/budgets/:budgetId", (req, res) => {
-    res.send("updates the budget if it exists, otherwise returns an error");
-  });
+  registerBudgetRoutes(app, db);
+  registerGroupRoutes(app, db);
 };

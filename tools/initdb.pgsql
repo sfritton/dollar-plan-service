@@ -1,9 +1,8 @@
 -- Drop tables
-DROP TABLE IF EXISTS guitars; -- remove sample table
-DROP TABLE IF EXISTS budgets;
-DROP TABLE IF EXISTS groups;
-DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS groups;
+DROP TABLE IF EXISTS budgets;
 
 -- Create budgets table
 CREATE TABLE IF NOT EXISTS budgets (
@@ -15,34 +14,36 @@ CREATE TABLE IF NOT EXISTS budgets (
 -- Create groups table
 CREATE TABLE IF NOT EXISTS groups (
     id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY
-    , budgetId int NOT NULL
+    , budget_id int NOT NULL
     , title varchar(50) NOT NULL
-    , isIncome boolean NOT NULL
-    , FOREIGN KEY (budgetId) REFERENCES budgets(id) ON DELETE CASCADE
+    , is_income boolean NOT NULL
+    , sort int NOT NULL
+    , FOREIGN KEY (budget_id) REFERENCES budgets(id) ON DELETE CASCADE
 );
 
 -- Create categories table
 CREATE TABLE IF NOT EXISTS categories (
     id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY
-    , groupId int NOT NULL
-    , budgetId int NOT NULL
+    , group_id int NOT NULL
+    , budget_id int NOT NULL
     , title varchar(50) NOT NULL
-    , plannedAmount int NOT NULL
+    , planned_amount int NOT NULL
     , notes varchar(200) NULL
-    , FOREIGN KEY (groupId) REFERENCES groups(id) ON DELETE CASCADE
-    , FOREIGN KEY (budgetId) REFERENCES budgets(id) ON DELETE CASCADE
+    , sort int NOT NULL
+    , FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
+    , FOREIGN KEY (budget_id) REFERENCES budgets(id) ON DELETE CASCADE
 );
 
 -- Create transactions table
 CREATE TABLE IF NOT EXISTS transactions (
     id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY
-    , categoryId int NOT NULL
-    , groupId int NOT NULL
-    , budgetId int NOT NULL
+    , category_id int NOT NULL
+    , group_id int NOT NULL
+    , budget_id int NOT NULL
     , amount int NOT NULL
     , date smallint NOT NULL
     , description varchar(200) NULL
-    , FOREIGN KEY (categoryId) REFERENCES categories(id) ON DELETE CASCADE
-    , FOREIGN KEY (groupId) REFERENCES groups(id) ON DELETE CASCADE
-    , FOREIGN KEY (budgetId) REFERENCES budgets(id) ON DELETE CASCADE
+    , FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+    , FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE
+    , FOREIGN KEY (budget_id) REFERENCES budgets(id) ON DELETE CASCADE
 );
