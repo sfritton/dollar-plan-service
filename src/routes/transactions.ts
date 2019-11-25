@@ -6,13 +6,13 @@ export const registerRoutes = (
   app: Express.Application,
   db: pgPromise.IDatabase<{}, pg.IClient>
 ) => {
-  app.get("/categories", async (req, res) => {
+  app.get("/transactions", async (req, res) => {
     try {
       const budgets = await db.any(
         `
           SELECT *
-          FROM categories
-          ORDER BY budget_id, group_id
+          FROM transactions
+          ORDER BY budget_id, group_id, category_id
         `
       );
       return res.json(budgets);
@@ -25,12 +25,12 @@ export const registerRoutes = (
     }
   });
 
-  app.post("/categories", async (req, res) => {
+  app.post("/transactions", async (req, res) => {
     try {
       const id = await db.one(
         `
-          INSERT INTO categories(budget_id, title, group_id, planned_amount, notes)
-          VALUES( $[budget_id], $[title], $[group_id], $[planned_amount], $[notes])
+          INSERT INTO transactions(budget_id, group_id, category_id, amount, date, description)
+          VALUES($[budget_id], $[group_id], $[category_id], $[amount], $[date], $[description])
           RETURNING id;`,
         req.body
       );

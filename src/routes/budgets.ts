@@ -2,6 +2,7 @@ import * as Express from "express";
 import pgPromise from "pg-promise";
 import pg from "pg-promise/typescript/pg-subset";
 import { NOT_FOUND_MESSAGE } from "./constants";
+import arrayToMap from "../util/arrayToMap";
 
 export const registerRoutes = (
   app: Express.Application,
@@ -30,23 +31,51 @@ export const registerRoutes = (
     const id = req.params.id;
 
     try {
-      const budget = await db.one(
-        `
+      const [
+        budget,
+        groupList,
+        categoryList,
+        transactionList
+      ] = await Promise.all([
+        db.one(
+          `
           SELECT *
           FROM budgets
           WHERE id = $[id]
         `,
-        { id }
-      );
-      const groups = await db.any(
-        `
+          { id }
+        ),
+        db.any(
+          `
           SELECT *
           FROM groups
           WHERE budget_id = $[id]
         `,
-        { id }
-      );
-      return res.json({ ...budget, groups });
+          { id }
+        ),
+        db.any(
+          `
+          SELECT *
+          FROM categories
+          WHERE budget_id = $[id]
+        `,
+          { id }
+        ),
+        db.any(
+          `
+          SELECT *
+          FROM transactions
+          WHERE budget_id = $[id]
+        `,
+          { id }
+        )
+      ]);
+
+      const groups = arrayToMap(groupList);
+      const categories = arrayToMap(categoryList);
+      const transactions = arrayToMap(transactionList);
+
+      return res.json({ ...budget, groups, categories, transactions });
     } catch (error) {
       // tslint:disable-next-line:no-console
       console.error(error);

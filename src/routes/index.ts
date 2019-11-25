@@ -2,6 +2,8 @@ import * as Express from "express";
 import pgPromise from "pg-promise";
 import { registerRoutes as registerBudgetRoutes } from "./budgets";
 import { registerRoutes as registerGroupRoutes } from "./groups";
+import { registerRoutes as registerCategoryRoutes } from "./categories";
+import { registerRoutes as registerTransactionRoutes } from "./transactions";
 
 export const registerRoutes = (app: Express.Application) => {
   const port = parseInt(process.env.PGPORT || "5432", 10);
@@ -17,4 +19,6 @@ export const registerRoutes = (app: Express.Application) => {
 
   registerBudgetRoutes(app, db);
   registerGroupRoutes(app, db);
+  registerCategoryRoutes(app, db);
+  registerTransactionRoutes(app, db);
 };
