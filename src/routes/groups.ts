@@ -1,18 +1,13 @@
 import * as Express from "express";
 import { PostgresDB } from "../types";
 import { createGroup } from "../queries/createGroup";
+import { getGroups } from "../queries/getGroups";
 
 export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
   app.get("/groups", async (req, res) => {
     try {
-      const budgets = await db.any(
-        `
-          SELECT *
-          FROM groups
-          ORDER BY budget_id
-        `
-      );
-      return res.json(budgets);
+      const groups = await getGroups(db);
+      return res.json(groups);
     } catch (error) {
       // tslint:disable-next-line:no-console
       console.error(error);
