@@ -4,9 +4,12 @@ import { PostgresDB } from "../types";
 import { getAllBudgets } from "../queries/getAllBudgets";
 import { getBudgetById } from "../queries/getBudgetById";
 import { createBudget } from "../queries/createBudget";
+import { saveLegacyBudget } from "../queries/saveLegacyBudget";
+
+const path = "/budgets" as const;
 
 export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
-  app.get("/budgets", async (req, res) => {
+  app.get(path, async (req, res) => {
     try {
       const budgets = await getAllBudgets(db);
       return res.json(budgets);
@@ -19,7 +22,7 @@ export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
     }
   });
 
-  app.get("/budgets/:id", async (req, res) => {
+  app.get(`${path}/:id`, async (req, res) => {
     const id = req.params.id;
 
     try {
@@ -35,7 +38,23 @@ export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
     }
   });
 
-  app.post("/budgets", async (req, res) => {
+  app.post(`${path}/legacy`, async (req, res) => {
+    try {
+      const id = await saveLegacyBudget(db, req.body);
+      console.log(id);
+
+      const budget = await getBudgetById(db, String(id));
+      return res.json(budget);
+    } catch (error) {
+      // tslint:disable-next-line:no-console
+      console.error(error);
+
+      res.status(500);
+      res.json({ error: error.message || error });
+    }
+  });
+
+  app.post(path, async (req, res) => {
     try {
       const id = await createBudget(db, req.body);
       return res.json(id);

@@ -23,7 +23,7 @@ declare namespace Budget {
     group_id: number;
     budget_id: number;
     title: string;
-    planned_amount: string;
+    planned_amount: number;
     notes: string;
   }
 
