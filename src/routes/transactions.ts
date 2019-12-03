@@ -1,11 +1,7 @@
 import * as Express from "express";
-import pgPromise from "pg-promise";
-import pg from "pg-promise/typescript/pg-subset";
+import { PostgresDB } from "../types";
 
-export const registerRoutes = (
-  app: Express.Application,
-  db: pgPromise.IDatabase<{}, pg.IClient>
-) => {
+export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
   app.get("/transactions", async (req, res) => {
     try {
       const budgets = await db.any(

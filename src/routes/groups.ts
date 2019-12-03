@@ -1,11 +1,8 @@
 import * as Express from "express";
-import pgPromise from "pg-promise";
-import pg from "pg-promise/typescript/pg-subset";
+import { PostgresDB } from "../types";
+import { createGroup } from "../queries/createGroup";
 
-export const registerRoutes = (
-  app: Express.Application,
-  db: pgPromise.IDatabase<{}, pg.IClient>
-) => {
+export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
   app.get("/groups", async (req, res) => {
     try {
       const budgets = await db.any(
@@ -27,13 +24,7 @@ export const registerRoutes = (
 
   app.post("/groups", async (req, res) => {
     try {
-      const id = await db.one(
-        `
-          INSERT INTO groups(budget_id, title, is_income)
-          VALUES( $[budget_id], $[title], $[is_income])
-          RETURNING id;`,
-        req.body
-      );
+      const id = await createGroup(db, req.body);
       return res.json(id);
     } catch (err) {
       // tslint:disable-next-line:no-console
