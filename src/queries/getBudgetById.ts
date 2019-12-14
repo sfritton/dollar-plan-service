@@ -18,6 +18,7 @@ export async function getBudgetGroupsQuery(db: PostgresDB, id: string) {
       SELECT *
       FROM groups
       WHERE budget_id = $[id]
+      ORDER BY sort
     `,
     { id }
   );
@@ -29,6 +30,7 @@ export async function getBudgetCategoriesQuery(db: PostgresDB, id: string) {
       SELECT *
       FROM categories
       WHERE budget_id = $[id]
+      ORDER BY sort
     `,
     { id }
   );
@@ -40,6 +42,7 @@ export async function getBudgetTransactionsQuery(db: PostgresDB, id: string) {
       SELECT *
       FROM transactions
       WHERE budget_id = $[id]
+      ORDER BY date
     `,
     { id }
   );
@@ -56,9 +59,27 @@ export async function getBudgetById(
     getBudgetTransactionsQuery(db, id)
   ] as const);
 
-  const groups = arrayToMap(groupList);
-  const categories = arrayToMap(categoryList);
+  const groups = arrayToMap(
+    groupList.map(group => ({ ...group, categoryIds: [] }))
+  );
+  const categories = arrayToMap(
+    categoryList.map(category => ({ ...category, transactionIds: [] }))
+  );
   const transactions = arrayToMap(transactionList);
 
-  return { ...budget, groups, categories, transactions };
+  for (const transaction of transactionList) {
+    categories[transaction.category_id].transactionIds.push(transaction.id);
+  }
+
+  for (const category of categoryList) {
+    groups[category.group_id].categoryIds.push(category.id);
+  }
+
+  return {
+    ...budget,
+    groupIds: groupList.map(({ id }) => id),
+    groups,
+    categories,
+    transactions
+  };
 }

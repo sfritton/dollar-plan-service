@@ -6,8 +6,8 @@ export async function createGroup(
 ) {
   return await db.one<ID>(
     `
-      INSERT INTO groups(budget_id, title, is_income)
-      VALUES( $[budget_id], $[title], $[is_income])
+      INSERT INTO groups(budget_id, title, is_income, sort)
+      VALUES( $[budget_id], $[title], $[is_income], $[sort])
       RETURNING id;
     `,
     group

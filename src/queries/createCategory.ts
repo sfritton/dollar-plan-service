@@ -6,8 +6,8 @@ export async function createCategory(
 ) {
   return await db.one<ID>(
     `
-      INSERT INTO categories(budget_id, title, group_id, planned_amount, notes)
-      VALUES( $[budget_id], $[title], $[group_id], $[planned_amount], $[notes])
+      INSERT INTO categories(budget_id, title, group_id, planned_amount, notes, sort)
+      VALUES( $[budget_id], $[title], $[group_id], $[planned_amount], $[notes], $[sort])
       RETURNING id;
     `,
     category

@@ -12,23 +12,26 @@ export async function saveLegacyBudget(
   const { id: budget_id } = await createBudget(db, budget.date);
 
   await Promise.all(
-    Object.entries(budget.categoryGroups).map(async ([key, group]) => {
+    Object.entries(budget.categoryGroups).map(async ([key, group], sort) => {
+      const is_income = key === "income";
       // save each group
       const { id: group_id } = await createGroup(db, {
         budget_id,
         title: group.title,
-        is_income: key === "income"
+        is_income,
+        sort
       });
 
       return await Promise.all(
-        Object.values(group.categories).map(async category => {
+        Object.values(group.categories).map(async (category, sort) => {
           // save each category
           const { id: category_id } = await createCategory(db, {
             budget_id,
             group_id,
             title: category.title,
             planned_amount: category.plannedAmount,
-            notes: category.notes ?? ""
+            notes: category.notes ?? "",
+            sort
           });
 
           return await Promise.all(
