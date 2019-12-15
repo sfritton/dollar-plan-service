@@ -74,10 +74,18 @@ export async function getBudgetById(
   for (const category of categoryList) {
     groups[category.group_id].categoryIds.push(category.id);
   }
+  const { incomeIds, expenseIds } = groupList.reduce((
+    acc: { incomeIds: number[], expenseIds: number[] },
+    { id, is_income }
+  ) => ({
+    incomeIds: is_income ? [...acc.incomeIds, id] : acc.incomeIds,
+    expenseIds: is_income ? acc.expenseIds : [...acc.expenseIds, id]
+  }), { incomeIds: [], expenseIds: []});
 
   return {
     ...budget,
-    groupIds: groupList.map(({ id }) => id),
+    incomeIds,
+    expenseIds,
     groups,
     categories,
     transactions

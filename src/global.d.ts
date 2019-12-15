@@ -6,7 +6,8 @@ declare namespace Budget {
   }
 
   interface BudgetResponse extends Budget {
-    groupIds: number[];
+    incomeIds: number[];
+    expenseIds: number[];
     groups: Record<string, GroupResponse>;
     categories: Record<string, CategoryResponse>;
     transactions: Record<string, Transaction>;
