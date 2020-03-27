@@ -2,6 +2,18 @@ import * as Express from "express";
 import { PostgresDB } from "../types";
 import { getTransactions } from "../queries/getTransactions";
 import { createTransaction } from "../queries/createTransaction";
+import { getBudgetById } from "../queries/getBudgetById";
+import { updateTransaction } from "../queries/updateTransaction";
+
+interface Modified {
+  isNew?: boolean;
+  isUpdated?: boolean;
+}
+
+interface SaveTransactionsBody {
+  id: number;
+  transactions: (Budget.Transaction & Modified)[];
+}
 
 export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
   app.get("/transactions", async (req, res) => {
@@ -17,10 +29,31 @@ export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
     }
   });
 
-  app.post("/transactions", async (req, res) => {
+  app.post("/transaction", async (req, res) => {
     try {
       const id = await createTransaction(db, req.body);
       return res.json(id);
+    } catch (err) {
+      // tslint:disable-next-line:no-console
+      console.error(err);
+
+      res.status(500);
+      res.json({ error: err.message || err });
+    }
+  });
+
+  app.post("/transactions", async (req, res) => {
+    try {
+      const { id, transactions } = req.body as SaveTransactionsBody;
+      await Promise.all(
+        transactions.map(transaction => {
+          if (transaction.isNew) return createTransaction(db, transaction);
+          if (transaction.isUpdated) return updateTransaction(db, transaction);
+        })
+      );
+
+      const budget = await getBudgetById(db, String(id));
+      return res.json(budget);
     } catch (err) {
       // tslint:disable-next-line:no-console
       console.error(err);
