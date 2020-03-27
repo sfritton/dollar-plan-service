@@ -4,6 +4,7 @@ import { getTransactions } from "../queries/getTransactions";
 import { createTransaction } from "../queries/createTransaction";
 import { getBudgetById } from "../queries/getBudgetById";
 import { updateTransaction } from "../queries/updateTransaction";
+import { deleteTransaction } from "../queries/deleteTransaction";
 
 interface Modified {
   isNew?: boolean;
@@ -12,7 +13,10 @@ interface Modified {
 
 interface SaveTransactionsBody {
   id: number;
-  transactions: (Budget.Transaction & Modified)[];
+  transactions: (
+    | (Budget.Transaction & Modified)
+    | { id: number; isDeleted: true }
+  )[];
 }
 
 export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
@@ -45,10 +49,17 @@ export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
   app.post("/transactions", async (req, res) => {
     try {
       const { id, transactions } = req.body as SaveTransactionsBody;
+
       await Promise.all(
         transactions.map(transaction => {
-          if (transaction.isNew) return createTransaction(db, transaction);
-          if (transaction.isUpdated) return updateTransaction(db, transaction);
+          if ("isDeleted" in transaction) {
+            if (transaction.isDeleted)
+              return deleteTransaction(db, transaction.id);
+          } else {
+            if (transaction.isNew) return createTransaction(db, transaction);
+            if (transaction.isUpdated)
+              return updateTransaction(db, transaction);
+          }
         })
       );
 
