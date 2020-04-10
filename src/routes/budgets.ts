@@ -9,6 +9,7 @@ import { createGroup } from "../queries/createGroup";
 import { updateGroup } from "../queries/updateGroup";
 import { createCategory } from "../queries/createCategory";
 import { updateCategory } from "../queries/updateCategory";
+import { copyBudget } from "../queries/copyBudget";
 
 const path = "/budgets" as const;
 
@@ -56,7 +57,6 @@ export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
   app.post(`${path}/legacy`, async (req, res) => {
     try {
       const id = await saveLegacyBudget(db, req.body);
-      console.log(id);
 
       const budget = await getBudgetById(db, String(id));
       return res.json(budget);
@@ -72,6 +72,13 @@ export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
   app.post(path, async (req, res) => {
     try {
       const id = await createBudget(db, req.body);
+
+      if (req.body.isCopying)
+        await copyBudget(db, {
+          oldBudgetId: req.body.prevBudgetId,
+          newBudgetId: id.id,
+        });
+
       return res.json(id);
     } catch (err) {
       // tslint:disable-next-line:no-console
@@ -88,7 +95,7 @@ export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
 
       // Create or update groups, and store their ids
       const groupIds = await Promise.all(
-        groups.map(async group => {
+        groups.map(async (group) => {
           if (group.isNew) {
             const { id } = await createGroup(db, group);
             return { id, tempId: group.id };
@@ -103,23 +110,23 @@ export const registerRoutes = (app: Express.Application, db: PostgresDB) => {
       const groupIdMap = groupIds.reduce<Record<string, number>>(
         (acc, { id, tempId }) => ({
           ...acc,
-          [tempId]: Number(id)
+          [tempId]: Number(id),
         }),
         {}
       );
 
       // Replace any temporary group_ids before updating categories
       await Promise.all(
-        categories.map(category => {
+        categories.map((category) => {
           if (category.isNew)
             return createCategory(db, {
               ...category,
-              group_id: groupIdMap[category.group_id]
+              group_id: groupIdMap[category.group_id],
             });
           if (category.isUpdated)
             return updateCategory(db, {
               ...category,
-              group_id: groupIdMap[category.group_id]
+              group_id: groupIdMap[category.group_id],
             });
         })
       );
