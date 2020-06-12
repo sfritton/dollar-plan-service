@@ -6,7 +6,7 @@
   "scripts": {
     "initdb": "ts-node tools/initdb",
     "build": "tsc",
-    "prestart": "npm run build",
+    "prestart": "npm run build && npm run initdb",
     "start": "node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

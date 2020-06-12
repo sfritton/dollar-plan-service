@@ -1,9 +1,3 @@
--- Drop tables
-DROP TABLE IF EXISTS transactions;
-DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS groups;
-DROP TABLE IF EXISTS budgets;
-
 -- Create budgets table
 CREATE TABLE IF NOT EXISTS budgets (
     id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY
